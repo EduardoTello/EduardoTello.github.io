@@ -82,7 +82,7 @@ function laBolsa() {
 
   // Reportamos lo que generamos (Esto solo sale para debuguear, será suprimido o cambiado para la entrega final)
   out += '<p> Como lo hice: </p>'
-  out += '<table style="width:25%" ><tr><th><b>Suma</b></th><th><b>Cantidad</b></th><th><b>Actual y Pasado</b></th><th><b>Denominacion</b></th>';
+  out += '<table style="width:100%" ><tr><th><b>Suma</b></th><th><b>Cantidad</b></th><th><b>Actual y Pasado</b></th><th><b>Denominacion</b></th>';
   for (var i= 0; i<= cant; i++ ) {
     out += '</tr><tr><td>' + i + '</td><td>' + Min[i] + '</td><td>' + actual[i] + ' ' + '(' + pasado[i] + ')' + '</td><td>' + denom[i] + '</td>';
   }
