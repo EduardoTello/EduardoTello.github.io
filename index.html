@@ -1,5 +1,28 @@
 <!DOCTYPE html>
 <html><head><title></title></head><body>
+  <p id="mo"></p>
+  <script type="text/javascript">
+  var monedas= [
+    {denominacion:1, cantidadRestante: 1},
+    {denominacion:2, cantidadRestante: 1},
+    //{denominacion:3, cantidadRestante: 1},
+    //{denominacion:4, cantidadRestante: 1},
+    {denominacion:5, cantidadRestante: 1},
+    {denominacion:10, cantidadRestante: 1},
+    {denominacion:20, cantidadRestante: 1},
+    {denominacion:50, cantidadRestante: 1},
+    {denominacion:100, cantidadRestante: 1}
+  ];
+  var N = monedas.length;
+  function mons() {
+    sal = '';
+    for (var i= 0; i < N; i++) {
+      sal += '<p>' + 'Denominacion: ' + monedas[i].denominacion + ' <input type="number" id="din' + i + '" value="' + monedas[i].cantidadRestante + '" />' + '</p>';
+    }
+    document.getElementById("mo").innerHTML =sal;
+  }
+  mons();
+  </script>
   <div class="moneda form-group">Cambio: </label><input type="number" id="dinero" value="0" />
   </div>
   <div class="moneda form-group">
@@ -8,29 +31,19 @@
   <p id="res"></p>
 </body></html>
 <script type="text/javascript">
-
 // Declaramos variables
-var monedas= [
-  1,
-  2,
-  5,
-  10,
-  20,
-  50,
-  100
-];
 var cant = 0;
 var Min = [];
-var N = monedas.length;
 var out = '';
 var actual = [];
 var pasado = [];
 var denom = [];
 
-
-
 // Esta es la función que nos regresa todo
 function laBolsa() {
+  for (var i= 0; i < N; i++) {
+    monedas[i].cantidadRestante = document.getElementById("din" + i).value
+  }
 
   // Obtenemos la cantidad a cambiar
   cant = document.getElementById("dinero").value;
@@ -38,7 +51,7 @@ function laBolsa() {
   out = '';
   // La cantidad a la que le vamos a asignar el cambio
   out += 'cant: ' + cant + '</br>';
-  
+
   // Ponemos el valor máximo a la cantidad de cada suma (para poder irla reduciendo en el algoritmo)
   for (var i= 0; i <= cant; i++) {
     Min[i] = Number.MAX_VALUE;
@@ -49,20 +62,57 @@ function laBolsa() {
   pasado[0] = 0;
   denom[0] = 0;
 
+  out += '<p>Monton de moton de monedas antes</p>';
+  for (var i= 0; i< N; i++) {
+    out += '<p> Denominacion: ' + monedas[i].denominacion + ', cantidad: ' + monedas[i].cantidadRestante + ': </p>'
+  }
+
   // Hacemos el cambio
   // Para cada subsuma de la cantidad a hacer cambio
   for(var i = 1; i <= cant; i++){
     // Para cada denominación de moneda
     for(var j = 0; j <= (N - 1); j++){
+      // Aquí tengo que revisar si se va a poder con la moneda actual más las monedas que ya se usaron para llegar a esta combinación
+      var sepuede = true;
+      if ( (monedas[j].denominacion <= i) && (Min[i-monedas[j].denominacion]+1 < Min[i]) ){
+        var ira = i-monedas[j].denominacion;
+        var mon = [];
+        for(var k = 0; k < N; k++){
+          mon[k] = monedas[k].cantidadRestante;
+        }
+        // Cuando llegamos a 0 ya llegamos al caso base y no tenemos porque continuar
+        while(Min[ira] != 0 && Min[ira] != undefined){
+          // sustraemos del monton de monedas la moneda que se usaron para el resultao
+          for(var m = 0; m < N; m++){
+            //
+            if(actual[ira] == monedas[m].denominacion){
+              mon[m] = (mon[m] - 1);
+            }
+          }
+
+          if(mon[ira] < 0){
+            out += '<p>No se puede</p>';
+            sepuede = false;
+          }
+          // Nos vamos a la subsuma a la que agregamos la moneda actual para ver que moneda agragamos ahí
+          ira = pasado[ira];
+        }
+        // hasta aquí sabemos si la subsuma es factible
+        // ahora checamos si aun quedan monedas para poner la nueva
+        if(mon[j] - 1 < 0){
+          sepuede = false;
+        }
+      }
       // Si el valor de la moneda a agregar es menor a la subsuma actual
       // y
       // La cantidad de monedas (actual menos la moneda a añadir) más uno es menor a la cantidad de monedas actual
-      if ( (monedas[j]<=i) && (Min[i-monedas[j]]+1 < Min[i]) ){
-        Min[i]=Min[i-monedas[j]]+1;
+      if ( (monedas[j].denominacion <= i) && (Min[i-monedas[j].denominacion]+1 < Min[i]) && (sepuede) ){
+        // sumamos uno a la cadena de monedas a las que agregamos la moneda actual
+        Min[i]=Min[i-monedas[j].denominacion]+1;
         // la moneda que añadimos
-        actual[i] = monedas[j];
+        actual[i] = monedas[j].denominacion;
         // la subsuma a la que añadimos la moneda
-        pasado[i] = i-monedas[j];
+        pasado[i] = i-monedas[j].denominacion;
       }
     }
   }
@@ -72,8 +122,17 @@ function laBolsa() {
     var ira = i;
     var den = '';
     // Caundo llegamos a 0 ya llegamos al caso base y no tenemos porque continuar
-    while(Min[ira] != 0){
+    while(Min[ira] != 0 && Min[ira] != undefined){
       den += ' ' + actual[ira] + ', ';
+      if(i == cant){
+        // sustraemos del monton de monedas la moneda que se usaron para el resultao
+        for(var j = 0; j < N; j++){
+          //
+          if(actual[ira] == monedas[j].denominacion){
+            monedas[j].cantidadRestante = (monedas[j].cantidadRestante - 1);
+          }
+        }
+      }
       // Nos vamos a la subsuma a la que agregamos la moneda actual para ver que moneda agragamos ahí
       ira = pasado[ira];
     }
@@ -82,17 +141,39 @@ function laBolsa() {
 
   // Reportamos lo que generamos (Esto solo sale para debuguear, será suprimido o cambiado para la entrega final)
   out += '<p> Como lo hice: </p>'
-  out += '<table style="width:100%" ><tr><th><b>Suma</b></th><th><b>Cantidad</b></th><th><b>Actual y Pasado</b></th><th><b>Denominacion</b></th>';
+  out += '<table style="width:100%"><tr><th><b>Suma</b></th><th><b>Cantidad minima</b></th><th><b>Actual y Pasado</b></th><th><b>Denominacion</b></th>';
   for (var i= 0; i<= cant; i++ ) {
     out += '</tr><tr><td>' + i + '</td><td>' + Min[i] + '</td><td>' + actual[i] + ' ' + '(' + pasado[i] + ')' + '</td><td>' + denom[i] + '</td>';
   }
   out+= '</tr></table><br/>';
 
-  // Damos el resultado del problema 
-  out += '<p> Para hacer cambio de ' + cant + ' utilice ' + Min[cant]  + ' monedas; a saber: ' + denom[cant] + '  </p>';
-  
+  out += '<p>Monton de moton de monedas despues</p>';
+  // Reportamos como quedó el montón de monedas
+  for (var i= 0; i< N; i++) {
+    out += '<p> Denominacion: ' + monedas[i].denominacion + ', cantidad: ' + monedas[i].cantidadRestante + ': </p>';
+  }
+
+  var band = true;
+  // revisamos si la solución propuesta es válida
+  for (var i = 0; i< N; i++) {
+    if(monedas[i].cantidadRestante < 0){
+        band = false;
+    }
+  }
+
+  if(!band){
+    // Decimos que no se puede dar el cambio óptimo
+    out += '<p> No se puede dar el cambio optimo</p>';
+
+  }else if(denom[cant] == ' undefined, '){
+    // Decimos que no se puede dar el cambio óptimo
+    out += '<p> No se puede dar el cambio optimo</p>';
+  }else{
+    // Damos el resultado del problema 
+    out += '<p> Para hacer cambio de ' + cant + ' utilice ' + Min[cant]  + ' monedas; a saber: ' + denom[cant] + '  </p>';
+  }
+
   // Desplegamos lo generado y el resultado
   document.getElementById("res").innerHTML =out;
-
 }
 </script>
