@@ -1,0 +1,84 @@
+<script type="text/javascript">
+function laBolsa() {
+
+  var cant = 0;
+  var Min = [];
+  var actual = [];
+  var pasado = [];
+  var denom = '';
+
+  for (var i= 0; i <= cant; i++) {
+    Min[i] = Number.MAX_VALUE;
+  }
+
+  Min[0] = 0;
+  actual[0] = 0;
+  pasado[0] = 0;
+  denom[0] = 0;
+  for(var i = 1; i <= cant; i++){
+    for(var j = 0; j <= (N - 1); j++){
+      if ( (monedas[j].denominacion <= i) && (Min[i-monedas[j].denominacion]+1 < Min[i])){
+        Min[i]=Min[i-monedas[j].denominacion]+1;
+        actual[i] = monedas[j].denominacion;
+        pasado[i] = i-monedas[j].denominacion;
+      }
+    }
+  }
+
+  var ira = cant;
+  var den = '';
+  while(ira > 0){
+    den += ' ' + actual[ira] + ', ';
+    ira = pasado[ira];
+  }
+  denom = den;
+
+  if(denom != ' undefined, '){
+    // Damos el resultado del problema 
+    return denom;
+  } else{
+    return 'no se puede';
+  }
+
+}
+</script>
+
+
+
+
+En pseudocódigo
+
+Establecer Monedas={1,2,5...} (Las denominaciones de monedas a utilizar)
+Establecer cant = cantidad que vamos a regresar en cambio
+Establecer Min[i] = infinito paratoda i= {1,2,...cant}
+Establecer N = |Monedas|;
+Min[0] = 0 
+actual[0] = 0;
+pasado[0] = 0;
+for i de 1 a cant{
+  for j de 0 a N -1{
+    if(monedas[j] < i &&  Min[i-monedas[j]]+1 < Min[i]) Entonces{
+      Establecer Min[i] = Min[i-monedas[j]]+1
+      Establecer actual[i] = monedas[j]
+      Establecer pasado[i] = Min[i-monedas[j]]
+    }
+  }
+}
+
+establecer ira = cant
+establecer k = 0
+establecer monedasUsadas = ''
+mientras(ira > 0)hacer{
+  monedasUsadas += actual[ira] + ','
+  k = k + 1
+  ira = pasado[ira]
+}
+
+if(monedasUsadas[i] != undefined)entonces{
+  return monedasUsadas
+}de lo contrario{
+  return 'No se puede'
+}
+
+Observaciones 
+(O1) Cantidad es un número finito por lo tanto i eventualmente lo alcanza y se cierra el ciclo (Linea)
