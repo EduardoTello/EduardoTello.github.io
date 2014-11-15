@@ -1,42 +1,107 @@
-Establecer Monedas={1,2,5...} (Las denominaciones de monedas a utilizar)
-Establecer cant = cantidad que vamos a regresar en cambio
-Establecer Min[i] = infinito paratoda i= {1,2,...cant}
-Establecer N = |Monedas|;
+Monedas <-  {1,2,5...}
+cant <- cantidad que vamos a regresar en cambio
+Min[i] <- infinito para toda i= {1,2,...cant}
+N <- |Monedas|
 Min[0] = 0 
 actual[0] = 0;
 pasado[0] = 0;
+
 for i de 1 a cant{
-  for j de 0 a N -1{
+  for j de 0 a N - 1{
     if(monedas[j] < i &&  Min[i-monedas[j]]+1 < Min[i]) Entonces{
-      Establecer Min[i] = Min[i-monedas[j]]+1
-      Establecer actual[i] = monedas[j]
-      Establecer pasado[i] = i-monedas[j]
+      Min[i] <- Min[i-monedas[j]]+1
+      actual[i] <- monedas[j]
+      pasado[i] <- i-monedas[j]
     }
   }
 }
 
-establecer ira = cant
-establecer monedasUsadas = ''
+ira <- cant
+monedasUsadas <- ''
 mientras(ira > 0)hacer{
   monedasUsadas += actual[ira] + ','
   ira = pasado[ira]
 }
 
-if(monedasUsadas[i] != undefined)entonces{
+if(monedasUsadas != undefined)entonces{
   return monedasUsadas
 }de lo contrario{
   return 'No se puede'
 }
 
 Observaciones 
+(o0) El cambio de cant se conforma por monedas de denominación menor o igual a cant
 (o1) Cantidad es un número finito por lo tanto i eventualmente lo alcanza y se cierra el ciclo 8 - 16 (Linea 8)
 (o2) N - 1 es un número finito por lo que j eventualemte lo alcanza y cierra el ciclo 9 - 15 (Linea 9)
 (o3) pasado[i] < i ya que pasado[i] = i-monedas[j] (Linea 13)
+(o4) para cant = 0 hacemos Min[0] = 0, actual[0] = 0 y pasado[0] = 0 (Lineas 5, 6 y 7)
+(o5) el arreglo actual guarda el valor de la moneda que se añadió a la solución (Linea 13)
+(o6) el arreglo pasado guerda el valor de la subsuma que se usó para sumar la subsuma actual (Linea 14)
+(o7) Si la respuesta es indefinida es que no se pudo hacer el cambio con ninguna combinación de monedas y se regresa "no se puede" se lo contrario se regresa la respuesta (Lineas 26 a 30)
 
 Afirmaciones
+(a0) Min[i] guarda la cantidad mínima de monedas para la subsuma i 
+  Esto sucede dado que la comparación del if del ciclo principal solo es cierta
+  si el número de monedas resultante del cambio sea menor al numero actual (Linea 11)
 (a1) pasado[ira] < ira
   Esto sucede dado que pasado[i] < i (o3)
   ira comienza en cant y va decreciendo (Linea 22)
-(a2) en el ciclo 20 - 23 ira = 0 eventualmente
+(a2) en el ciclo 20 - 23 ira = 0 eventualmente y cierra el ciclo 20 - 23
   Esto sucede dado que pasado[ira] < ira (a1)
   y que la base de todas las subsumas es 0
+(a3) el algoritmo termina por (o1),(o2) y (a2)
+(a4) En caso de que dar cambio sea posible, existe una moneda de denominación i tal que di <= cant
+  Esto sucede dado que de no existir entonces dar el cambio no sería posible (o0)
+
+Invariantes
+(i1) En la solución óptima ,al tomar la moneda de denominación i el resto de las monedas son la solución óptima de dar cambio de cant - i
+  Probaremos por inducción
+  Caso Base:
+    La solución es de 1 moneda 
+    En este caso cant1 = di para alguna i
+  Hipótesis de inducción:
+    La solución es de k monedas {m0,m1,...,mk} tales que suma de mi de 0 a k = cantk es la cantidad mínima.
+  Por demostrar
+    La solución es de k + 1 monedas {m0,m1,...,mk,mk+1} tales que suma de mi de 0 a k+1 = cantk+1 = cantk + d(mk+1) es la cantidad mínima
+    Dem
+    En este caso por (H.I.) sabemos que la mejor manera de juntar cantk es usar k monedas
+    entones ahora tenemos que juntar d(mk+1) pero sabemos que mk+1 por definición tiene el valor d(mk+1) lo cual no lleva a nuestro caso base.
+  Por lo tanto, queda demostrado que la mejor forma de dar cantk+1 es usando k+1 monedas
+(i2) La cantidad de monedas necesarias para dar el cambio de la subsuma i es 1 + la cantidad para dar el cambio de la subsuma i - dj (denominación de la moneda j)
+  Probaremos por inducción
+  Caso base:
+    La solución es de 1 moneda
+    En este caso tenemos que la cantidad de monedas que se usó fue la de usar 0 monedas (0) más la moneda actual (1)
+  Hipótesis de inducción
+    La solución es k monedas
+    En este caso tenemos que la cantidad de monedas que se usó fue la de usar (k-1) monedas más la moneda actual (1)
+  Por demostrar 
+    La solución es de K+1 monedas 
+    Con la subsuma de la hipótesis de inducción siendo igual a i = dj (denominación de la moneda actual) En este caso por H.I. sabemos que la cantidad de monedas a usar en la subsuma (i - dj) es k y al agregar la moneda actual tenemos k + 1
+  Por lo tanto queda demostrado que la cantidad de monedas necesarias para der el cambio de la subsuma i es 1 + la cantidad para dar el cambio de la subsuma i - dj 
+
+  (a0) Sea Min[cant] el número mínimo de monedas de N denominaciones d1, d2, ...dN necesarias para hacer cambio de cant.
+  (a4) En la solución óptima existe una primer moneda de denominación di tal que di < cant
+  (i1) El resto de las monedas en la solución óptima son ellas mismas la solución óptima para hacer cambio de cant - di 
+  (i1) Por lo tanto, si di es la primer moneda en la solución óptima del cambio de cant, entonces Min:[cant] = 1 + Min[cant-di]
+  (i2) No sabemos cual es la moneda di, sin embargo checamos todas las N posibilidades (provisto di ≤ cant) y el valor de la cantidad mínima para dar cambio de cant debe ser 1 más el valor del mínimo de la solución para cant - i  (1 +Min[p−di]).
+  (o4) Además para cambio de 0 tenemos el caso base de que se asigna Min[0] = 0
+
+
+  Así contamos con la siguiente recurrencia (se usa el algoritmo en forma iterativa):
+
+  Min[cant] =   0                               si cant = 0 
+                mini:di≤p{1 + Min[cant − di]}   si cant > 0
+
+  Así sabemos que vamos a regresar el mínimo número de monedas necesarias para formar el cambio requerido
+  Ahora para tener el valor de las monedas usadas usamos el ciclo 20 a 23
+  (a2) sabemos que el ciclo va "saltando" de subsuma a subsuma pasada 
+  (o5)(o6) sabemos que el valor de la moneda añadida en la subsuma i y la subsuma que se usó para llegar al total están en los arreglos actual y pasado repectivamente
+
+  Así; comenzando desde la subsuma final (linea 19) vamos recorriendo los 2 arreglos mientras armamos la respuesta
+
+  Ahora; si la respuesta fue alcanzada, regresamos la respuesta, de lo contrario se reporta que no se puede alcanzar esa suma con las monedas definidas. (o8).
+
+  Así sabemos que el algoritmo es correcto.
+
+
